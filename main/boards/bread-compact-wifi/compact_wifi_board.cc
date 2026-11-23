@@ -9,6 +9,7 @@
 #include "lamp_controller.h"
 #include "firebase_relay.h"
 #include "web_search.h"
+#include "knowledge_base.h"
 #include "led/single_led.h"
 #include "assets/lang_config.h"
 
@@ -153,6 +154,7 @@ private:
     void InitializeTools() {
         static FirebaseRelay firebase_relay;
         static WebSearch web_search;
+        static KnowledgeBase knowledge_base;
     }
 
 public:
