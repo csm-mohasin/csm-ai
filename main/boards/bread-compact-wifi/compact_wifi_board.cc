@@ -8,6 +8,7 @@
 #include "mcp_server.h"
 #include "lamp_controller.h"
 #include "firebase_relay.h"
+#include "web_search.h"
 #include "led/single_led.h"
 #include "assets/lang_config.h"
 
@@ -151,6 +152,7 @@ private:
     // 物联网初始化，逐步迁移到 MCP 协议
     void InitializeTools() {
         static FirebaseRelay firebase_relay;
+        static WebSearch web_search;
     }
 
 public:

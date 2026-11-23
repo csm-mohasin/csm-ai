@@ -1,13 +1,9 @@
 #ifndef FIREBASE_CONFIG_H
 #define FIREBASE_CONFIG_H
 
-// Ei file-e nijer Firebase tottho boshao. Repo PRIVATE hote hobe!
-// firebaseConfig theke: apiKey, databaseURL
-// Auth user: Firebase Authentication-e ALADA ekta user banao (admin account na)
-
-#define FIREBASE_API_KEY  "PASTE_YOUR_API_KEY"
-#define FIREBASE_DB_URL   "https://PASTE-YOUR-PROJECT-default-rtdb.firebaseio.com"   // shesh-e / dibe na
-#define FIREBASE_EMAIL    "PASTE_USER_EMAIL"
-#define FIREBASE_PASSWORD "PASTE_USER_PASSWORD"
+#define FIREBASE_API_KEY  "AIzaSyATczBXkLVCVpaje7ejU-_rYPbSJx7LHOY"
+#define FIREBASE_DB_URL   "https://getespform-default-rtdb.firebaseio.com"
+#define FIREBASE_EMAIL    "esp@mohasin.bro.bd"
+#define FIREBASE_PASSWORD "adminofesp"   // Firebase user-er password
 
 #endif  // FIREBASE_CONFIG_H
