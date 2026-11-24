@@ -4,6 +4,7 @@
 // Voice thekey Firebase Realtime Database-er /relayControl update korar MCP tool.
 // AI ei tool gulo dakbe: self.relay.set, self.relay.set_all, self.relay.get_status
 
+#include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <expected>
@@ -19,6 +20,7 @@
 #include "cjson_utils.h"
 #include "firebase_config.h"
 #include "mcp_server.h"
+#include "music_player.h"
 #include "search_config.h"  // Worker URL + token (/time endpoint-er jonno)
 
 class FirebaseRelay {
@@ -138,6 +140,18 @@ private:
 
     bool SetRelay(int relay, bool on) {
         return DbPut("relayControl/relay" + std::to_string(relay), on ? "true" : "false");
+    }
+
+    // ---------- Music: Firebase /music/<naam> = "https://...ogg" ----------
+    static std::string Norm(const std::string& in) {
+        std::string out;
+        for (unsigned char c : in) {
+            if (c == ' ' || c == '_' || c == '-') {
+                continue;
+            }
+            out += (char)std::tolower(c);  // ASCII-r jonno; Bangla byte gulo ager moto thake
+        }
+        return out;
     }
 
     // ---------- Schedule (website + ESP8266 er /schedules format) ----------
@@ -387,6 +401,90 @@ public:
                     return std::string("No pending schedules.");
                 }
                 return out;
+            });
+
+        mcp_server.AddTool(
+            "self.music.list",
+            "List the names of the songs available to play. Use when the user asks what music "
+            "or songs are available.",
+            PropertyList(),
+            [this](const PropertyList&) -> ToolResult {
+                std::lock_guard<std::mutex> lock(mutex_);
+                std::string raw;
+                if (!DbGet("music", raw)) {
+                    return std::unexpected(std::string("Failed to read music list"));
+                }
+                CJsonUniquePtr root(cJSON_Parse(raw.c_str()));
+                std::string out;
+                if (root && cJSON_IsObject(root.get())) {
+                    cJSON* item = nullptr;
+                    cJSON_ArrayForEach(item, root.get()) {
+                        if (item->string != nullptr) {
+                            out += out.empty() ? "" : ", ";
+                            out += item->string;
+                        }
+                    }
+                }
+                return out.empty() ? std::string("No songs added yet.") : out;
+            });
+
+        mcp_server.AddTool(
+            "self.music.play",
+            "Play a song by its name from our own music list. Use when the user asks to play a "
+            "song or music. If you are unsure of the exact name, call self.music.list first. "
+            "After calling, say ONE very short sentence like 'Playing <name>' and then stop "
+            "talking, because the conversation ends and the music starts.\n"
+            "Args:\n"
+            "  `name`: the song name as the user said it.",
+            PropertyList({Property("name", kPropertyTypeString)}),
+            [this](const PropertyList& properties) -> ToolResult {
+                std::string name = properties["name"].value<std::string>();
+                std::string want = Norm(name);
+                if (want.empty()) {
+                    return std::unexpected(std::string("Empty song name"));
+                }
+                std::string url, found, names;
+                {
+                    std::lock_guard<std::mutex> lock(mutex_);
+                    std::string raw;
+                    if (!DbGet("music", raw)) {
+                        return std::unexpected(std::string("Failed to read music list"));
+                    }
+                    CJsonUniquePtr root(cJSON_Parse(raw.c_str()));
+                    if (!root || !cJSON_IsObject(root.get())) {
+                        return std::unexpected(std::string("No songs added yet"));
+                    }
+                    cJSON* item = nullptr;
+                    cJSON* best = nullptr;
+                    cJSON_ArrayForEach(item, root.get()) {
+                        if (item->string == nullptr || !cJSON_IsString(item) ||
+                            item->valuestring == nullptr) {
+                            continue;
+                        }
+                        names += names.empty() ? "" : ", ";
+                        names += item->string;
+                        std::string key = Norm(item->string);
+                        if (key == want) {
+                            best = item;
+                            break;
+                        }
+                        if (best == nullptr &&
+                            (key.find(want) != std::string::npos ||
+                             want.find(key) != std::string::npos)) {
+                            best = item;
+                        }
+                    }
+                    if (best == nullptr) {
+                        return std::unexpected("Song not found. Available songs: " + names);
+                    }
+                    found = best->string;
+                    url = best->valuestring;
+                }
+                if (url.rfind("https://", 0) != 0) {
+                    return std::unexpected(std::string("Song link must start with https://"));
+                }
+                MusicPlayer::Play(url);
+                return "Playing " + found + " in a few seconds.";
             });
     }
 };
