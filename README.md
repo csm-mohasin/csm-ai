@@ -3,7 +3,7 @@
 An open-source ESP32 voice-assistant firmware project maintained by **CSM Mohasin Alam**. MAHI AI brings voice interaction, configurable wake words, device controls, and display-based feedback to supported ESP32 boards.
 
 - **Developer:** CSM Mohasin Alam
-- **Website:** [cam.mohasin.bro.bd](https://cam.mohasin.bro.bd)
+- **Website:** [cam.mohasin.bro.bd](https://csm.mohasin.bro.bd)
 - **Contact:** [admin@mohasin.bro.bd](mailto:admin@mohasin.bro.bd)
 
 > The website and contact details identify the MAHI AI project. Configure a device with the service endpoint and credentials provided for your deployment; this README does not imply that a particular cloud backend is already configured or available.
@@ -61,4 +61,4 @@ The menu label is an existing firmware configuration label; it does not identify
 
 MAHI AI is maintained by **CSM Mohasin Alam**. This repository incorporates open-source software and hardware support; see [`LICENSE`](LICENSE) and the relevant source files for license and attribution details. Please retain applicable third-party notices when redistributing or modifying the project.
 
-For questions or project inquiries, email [admin@mohasin.bro.bd](mailto:admin@mohasin.bro.bd) or visit [cam.mohasin.bro.bd](https://cam.mohasin.bro.bd).
+For questions or project inquiries, email [admin@mohasin.bro.bd](mailto:admin@mohasin.bro.bd) or visit [cam.mohasin.bro.bd](https://csm.mohasin.bro.bd).
